@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AuxQuiz — Turn Your Study Material into Smart Quizzes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0a0a0a;
+    --ink-soft:#3a3a3a;
+    --paper:#ffffff;
+    --mist:#f6f6f7;
+    --line:#e7e7ea;
+    --muted:#6b6b73;
+    --ring: rgba(10,10,10,0.12);
+    --radius: 14px;
+    --maxw: 1240px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:'Poppins', sans-serif;
+    color:var(--ink);
+    background:var(--paper);
+    -webkit-font-smoothing:antialiased;
+  }
+  img,svg{display:block;}
+  a{text-decoration:none;color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 32px;}
+  :focus-visible{outline:2px solid var(--ink);outline-offset:3px;}
+
+  /* ---------- Header ---------- */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:rgba(255,255,255,0.88);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 32px;max-width:var(--maxw);margin:0 auto;
+  }
+  .brand{font-weight:800;font-size:22px;letter-spacing:-0.5px;}
+  .nav-links{display:flex;gap:34px;align-items:center;}
+  .nav-links a{
+    font-size:15px;font-weight:500;color:var(--ink-soft);
+    position:relative;padding-bottom:6px;transition:color .2s;
+  }
+  .nav-links a:hover{color:var(--ink);}
+  .nav-links a.active{color:var(--ink);}
+  .nav-links a.active::after{
+    content:"";position:absolute;left:0;right:0;bottom:-2px;height:2px;background:var(--ink);
+  }
+  .nav-actions{display:flex;gap:12px;align-items:center;}
+  .btn{
+    font-size:14.5px;font-weight:600;padding:10px 20px;border-radius:10px;
+    border:1.5px solid var(--ink);transition:transform .15s ease, background .2s ease, color .2s ease;
+    display:inline-flex;align-items:center;gap:8px;white-space:nowrap;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn-outline{background:transparent;color:var(--ink);}
+  .btn-outline:hover{background:var(--mist);}
+  .btn-solid{background:var(--ink);color:var(--paper);}
+  .btn-solid:hover{background:#242424;}
+  .btn-lg{padding:14px 26px;font-size:15.5px;border-radius:12px;}
+  .menu-toggle{display:none;background:none;border:none;padding:6px;}
+  .menu-toggle span{display:block;width:24px;height:2px;background:var(--ink);margin:5px 0;}
+
+  /* user chip */
+  .user-chip{
+    display:none;align-items:center;gap:10px;border:1.5px solid var(--line);
+    border-radius:10px;padding:6px 14px 6px 6px;
+  }
+  .user-chip img{width:30px;height:30px;border-radius:50%;background:var(--mist);}
+  .user-chip .u-name{font-size:14px;font-weight:600;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .user-chip button{background:none;border:none;font-size:13px;color:var(--muted);font-weight:600;}
+  .user-chip button:hover{color:var(--ink);}
+
+  /* ---------- Hero ---------- */
+  .hero{padding:88px 0 96px;position:relative;overflow:hidden;}
+  .hero-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:center;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--mist);border:1px solid var(--line);
+    padding:8px 16px;border-radius:100px;font-size:13.5px;font-weight:600;color:var(--ink-soft);
+    margin-bottom:26px;
+  }
+  .eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--ink);}
+  h1.headline{
+    font-size:clamp(38px, 4.6vw, 58px);
+    line-height:1.07;font-weight:700;letter-spacing:-1.4px;margin:0 0 22px;
+  }
+  .lede{font-size:17.5px;line-height:1.7;color:var(--muted);max-width:520px;margin:0 0 34px;font-weight:400;}
+  .hero-ctas{display:flex;gap:14px;flex-wrap:wrap;}
+
+  /* hero visual */
+  .hero-visual{position:relative;}
+  .device{
+    background:var(--ink);border-radius:16px 16px 4px 4px;padding:10px 10px 0;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,0.35);
+  }
+  .device-bar{display:flex;gap:6px;padding:4px 6px 10px;}
+  .device-bar span{width:9px;height:9px;border-radius:50%;background:#4a4a4a;}
+  .device-screen{
+    background:var(--paper);border-radius:8px 8px 0 0;padding:0;overflow:hidden;
+    display:grid;grid-template-columns:150px 1fr;min-height:300px;
+  }
+  .d-side{background:var(--mist);border-right:1px solid var(--line);padding:18px 14px;}
+  .d-brand{font-weight:800;font-size:15px;margin-bottom:20px;}
+  .d-item{
+    display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:600;
+    padding:9px 10px;border-radius:8px;color:var(--ink-soft);margin-bottom:4px;
+  }
+  .d-item.on{background:var(--ink);color:var(--paper);}
+  .d-item .ic{width:14px;height:14px;flex:none;}
+  .d-main{padding:22px 22px 18px;}
+  .d-main h3{font-size:17px;margin:0 0 6px;font-weight:700;}
+  .d-main p{font-size:12.5px;color:var(--muted);margin:0 0 16px;line-height:1.55;}
+  .d-upload{
+    border:1.5px dashed var(--line);border-radius:10px;padding:26px 14px;text-align:center;background:var(--mist);
+  }
+  .d-upload .up-ic{margin:0 auto 8px;width:26px;height:26px;color:var(--ink-soft);}
+  .d-upload b{font-size:12.5px;display:block;}
+  .d-upload span{font-size:10.5px;color:var(--muted);}
+  .device-shadow{height:16px;background:linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0));border-radius:100%;margin:0 30px;filter:blur(2px);}
+
+  .float-card{
+    position:absolute;background:var(--paper);border:1px solid var(--line);border-radius:12px;
+    box-shadow:0 20px 40px -18px rgba(0,0,0,0.25);padding:16px 18px;
+  }
+  .quiz-float{top:-6%;right:-8%;width:230px;font-size:12px;}
+  .quiz-float p{margin:0 0 10px;font-weight:600;font-size:12.5px;line-height:1.4;}
+  .opt{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:11.5px;color:var(--ink-soft);}
+  .opt .radio{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--line);flex:none;}
+  .opt.sel .radio{border-color:var(--ink);background:var(--ink);}
+  .opt.sel{color:var(--ink);font-weight:600;}
+
+  .icon-stack{position:absolute;right:-13%;top:20%;display:flex;flex-direction:column;gap:14px;}
+  .icon-chip{
+    width:44px;height:44px;border-radius:12px;border:1.5px solid var(--ink);background:var(--paper);
+    display:flex;align-items:center;justify-content:center;box-shadow:0 12px 24px -12px rgba(0,0,0,0.25);
+  }
+
+  .bot{position:absolute;right:-4%;bottom:-14%;width:88px;}
+
+  /* ---------- Features ---------- */
+  .features{background:var(--mist);padding:96px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .section-head{text-align:center;max-width:640px;margin:0 auto 56px;}
+  .section-head .eyebrow{margin-bottom:20px;}
+  .section-head h2{font-size:clamp(28px,3.2vw,38px);font-weight:700;letter-spacing:-0.8px;margin:0 0 16px;}
+  .section-head p{color:var(--muted);font-size:16px;line-height:1.7;margin:0;}
+  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  .feat-card{
+    background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+    padding:28px 26px;transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .feat-card:hover{transform:translateY(-4px);box-shadow:0 20px 40px -24px rgba(0,0,0,0.25);}
+  .feat-ic{
+    width:46px;height:46px;border-radius:50%;background:var(--mist);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;margin-bottom:18px;
+  }
+  .feat-card h3{font-size:17px;font-weight:700;margin:0 0 8px;}
+  .feat-card p{font-size:14px;color:var(--muted);line-height:1.65;margin:0;}
+
+  /* ---------- How it works ---------- */
+  .how{padding:100px 0;}
+  .flow{display:flex;gap:0;overflow-x:auto;padding-bottom:10px;}
+  .flow-step{flex:1 1 0;min-width:150px;text-align:center;position:relative;padding:0 10px;}
+  .flow-step:not(:last-child)::after{
+    content:"";position:absolute;top:26px;left:calc(50% + 34px);right:calc(-50% + 34px);
+    height:1.5px;background:repeating-linear-gradient(90deg, var(--line) 0 6px, transparent 6px 11px);
+  }
+  .flow-num{
+    width:52px;height:52px;border-radius:50%;background:var(--ink);color:var(--paper);
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;
+    margin:0 auto 16px;position:relative;z-index:1;
+  }
+  .flow-step h4{font-size:14.5px;font-weight:700;margin:0 0 6px;}
+  .flow-step p{font-size:12.5px;color:var(--muted);line-height:1.55;margin:0;}
+
+  /* ---------- About / stats ---------- */
+  .about{background:var(--ink);color:var(--paper);padding:90px 0;}
+  .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
+  .about h2{font-size:clamp(26px,3vw,36px);font-weight:700;letter-spacing:-0.6px;margin:0 0 18px;}
+  .about p{color:#c7c7cc;line-height:1.75;font-size:15.5px;margin:0 0 14px;}
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px;}
+  .stat{border:1px solid #2a2a2a;border-radius:12px;padding:22px;}
+  .stat .num{font-size:30px;font-weight:800;letter-spacing:-1px;}
+  .stat .lbl{font-size:12.5px;color:#a5a5ab;margin-top:4px;}
+
+  /* ---------- CTA ---------- */
+  .cta-band{padding:90px 0;text-align:center;}
+  .cta-band h2{font-size:clamp(26px,3.4vw,40px);font-weight:700;letter-spacing:-1px;margin:0 0 14px;}
+  .cta-band p{color:var(--muted);margin:0 0 30px;font-size:16px;}
+  .cta-actions{display:flex;justify-content:center;gap:14px;}
+
+  /* ---------- Footer ---------- */
+  footer{border-top:1px solid var(--line);padding:40px 0;}
+  .foot-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+  .foot-row .brand{font-size:18px;}
+  .foot-links{display:flex;gap:24px;}
+  .foot-links a{font-size:13.5px;color:var(--muted);font-weight:500;}
+  .foot-links a:hover{color:var(--ink);}
+  .copyright{font-size:12.5px;color:var(--muted);margin-top:22px;text-align:center;}
+
+  /* ---------- Modal ---------- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(10,10,10,0.55);backdrop-filter:blur(3px);
+    display:none;align-items:center;justify-content:center;z-index:200;padding:20px;
+  }
+  .overlay.show{display:flex;}
+  .modal{
+    background:var(--paper);border-radius:18px;width:100%;max-width:400px;
+    padding:34px 32px 30px;position:relative;box-shadow:0 40px 80px -30px rgba(0,0,0,0.5);
+    animation:pop .22s ease;
+  }
+  @keyframes pop{from{opacity:0;transform:scale(.96) translateY(8px);}to{opacity:1;transform:none;}}
+  .modal-close{
+    position:absolute;top:16px;right:16px;background:none;border:none;font-size:20px;color:var(--muted);
+    width:30px;height:30px;border-radius:50%;
+  }
+  .modal-close:hover{background:var(--mist);}
+  .modal h2{font-size:22px;font-weight:700;margin:0 0 6px;text-align:center;}
+  .modal .sub{font-size:13.5px;color:var(--muted);text-align:center;margin:0 0 26px;}
+  .tabs{display:flex;background:var(--mist);border-radius:10px;padding:4px;margin-bottom:22px;}
+  .tab{flex:1;text-align:center;padding:9px 0;font-size:13.5px;font-weight:600;border-radius:8px;color:var(--muted);}
+  .tab.active{background:var(--paper);color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12.5px;font-weight:600;margin-bottom:6px;color:var(--ink-soft);}
+  .field input{
+    width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:9px;
+    font-family:inherit;font-size:14px;background:var(--mist);transition:border-color .2s;
+  }
+  .field input:focus{border-color:var(--ink);background:var(--paper);}
+  .name-row{display:flex;gap:10px;}
+  .name-row .field{flex:1;}
+  .submit-btn{
+    width:100%;background:var(--ink);color:var(--paper);border:none;padding:12px 0;
+    border-radius:9px;font-weight:600;font-size:14.5px;margin-top:6px;transition:background .2s;
+  }
+  .submit-btn:hover{background:#242424;}
+  .submit-btn:disabled{opacity:.6;cursor:default;}
+  .divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--muted);font-size:12px;}
+  .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line);}
+  .google-btn{
+    width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
+    border:1.5px solid var(--line);background:var(--paper);padding:11px 0;border-radius:9px;
+    font-weight:600;font-size:14px;transition:background .2s, border-color .2s;
+  }
+  .google-btn:hover{background:var(--mist);border-color:#c9c9ce;}
+  .form-msg{font-size:12.5px;text-align:center;margin-top:12px;min-height:16px;}
+  .form-msg.err{color:#c62828;}
+  .form-msg.ok{color:#1e7a34;}
+  .switch-line{text-align:center;font-size:12.5px;color:var(--muted);margin-top:18px;}
+  .switch-line b{color:var(--ink);cursor:pointer;}
+  .form-panel{display:none;}
+  .form-panel.active{display:block;}
+
+  /* ---------- Quiz Studio ---------- */
+  .studio{display:none;padding:80px 0;border-bottom:1px solid var(--line);scroll-margin-top:70px;}
+  .studio.show{display:block;}
+  .studio-card{max-width:760px;margin:0 auto;}
+  .drop{display:block;text-align:center;border:1.5px dashed #c9c9ce;border-radius:var(--radius);background:var(--mist);padding:38px 20px;cursor:pointer;transition:border-color .2s,background .2s;}
+  .drop:hover{border-color:var(--ink);background:var(--paper);}
+  .drop b{display:block;font-size:16px;margin-bottom:6px;word-break:break-word;}
+  .drop span{font-size:13px;color:var(--muted);}
+  .studio-opts{margin-top:22px;}
+  .field select{
+    width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:9px;
+    font-family:inherit;font-size:14px;background:var(--mist);
+  }
+  .qz-card{border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-top:16px;}
+  .qz-q{font-weight:600;font-size:15.5px;line-height:1.55;margin-bottom:14px;}
+  .qz-opt{
+    display:block;width:100%;text-align:left;font-size:14px;padding:11px 14px;margin-bottom:8px;
+    border:1.5px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);
+    transition:border-color .2s,background .2s;
+  }
+  .qz-opt:not(:disabled):hover{border-color:var(--ink);background:var(--mist);}
+  .qz-opt:disabled{cursor:default;color:var(--ink);}
+  .qz-opt.ok{border-color:#1e7a34;background:#eaf6ed;}
+  .qz-opt.bad{border-color:#c62828;background:#fdecec;}
+  .qz-ex{font-size:13px;color:var(--muted);line-height:1.65;margin-top:6px;}
+  .qz-sum{text-align:center;font-weight:700;font-size:20px;margin-top:24px;}
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 980px){
+    .hero-grid{grid-template-columns:1fr;}
+    .hero-visual{order:-1;max-width:480px;margin:0 auto;}
+    .about-grid{grid-template-columns:1fr;}
+    .feat-grid{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width: 760px){
+    .nav-links{
+      position:fixed;top:68px;left:0;right:0;background:var(--paper);
+      flex-direction:column;padding:20px 32px 26px;border-bottom:1px solid var(--line);
+      transform:translateY(-140%);transition:transform .25s ease;gap:16px;align-items:flex-start;
+    }
+    .nav-links.open{transform:translateY(0);}
+    .menu-toggle{display:block;}
+    .feat-grid{grid-template-columns:1fr;}
+    .flow{flex-direction:column;gap:26px;}
+    .flow-step::after{display:none;}
+    .icon-stack, .bot, .quiz-float{display:none;}
+    .device-screen{grid-template-columns:110px 1fr;}
+    .cta-actions{flex-direction:column;}
+    .btn-lg{width:100%;justify-content:center;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================== HEADER ===================== -->
+<header>
+  <nav class="nav">
+    <a href="#home" class="brand">AuxQuiz</a>
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+    <div class="nav-links" id="navLinks">
+      <a href="#home" class="active">Home</a>
+      <a href="#features">Features</a>
+      <a href="#how">How It Works</a>
+      <a href="#about">About</a>
+    </div>
+    <div class="nav-actions">
+      <button class="btn btn-outline" id="loginBtn">Login</button>
+      <button class="btn btn-solid" id="signupBtn">Sign Up</button>
+      <div class="user-chip" id="userChip">
+        <img id="userAvatar" src="" alt="">
+        <span class="u-name" id="userName">User</span>
+        <button id="logoutBtn">Log out</button>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero" id="home">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow"><span class="eyebrow-dot"></span>AI-Powered Learning &amp; Quiz Generation</div>
+      <h1 class="headline">Turn Your Study Material into Smart Quizzes</h1>
+      <p class="lede">AuxQuiz uses AI and Retrieval-Augmented Generation (RAG) to create context-aware quizzes from your own study resources. Upload, learn, and test — all in one place.</p>
+      <div class="hero-ctas">
+        <button class="btn btn-solid btn-lg" id="getStartedBtn">Get Started →</button>
+        <a href="#how" class="btn btn-outline btn-lg">Learn More</a>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="device">
+        <div class="device-bar"><span></span><span></span><span></span></div>
+        <div class="device-screen">
+          <div class="d-side">
+            <div class="d-brand">AuxQuiz</div>
+            <div class="d-item on"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>Home</div>
+            <div class="d-item"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0-12l4 4m-4-4L8 7M4 17v3h16v-3"/></svg>Upload</div>
+            <div class="d-item"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 2a5 5 0 015 5v10a2 2 0 01-4 0V8"/></svg>Generate Quiz</div>
+            <div class="d-item"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h5"/></svg>My Quizzes</div>
+          </div>
+          <div class="d-main">
+            <h3>Welcome Back!</h3>
+            <p>Upload your study material and let AI create quizzes for you.</p>
+            <div class="d-upload">
+              <svg class="up-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v12m0-12l4 4m-4-4L8 7M4 17v3h16v-3"/></svg>
+              <b>Upload Study Material</b>
+              <span>PDF, Images, or Documents</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="device-shadow"></div>
+
+      <div class="icon-stack">
+        <div class="icon-chip"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg></div>
+        <div class="icon-chip"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
+        <div class="icon-chip"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div>
+      </div>
+
+      <div class="float-card quiz-float">
+        <p>Q. What is the main advantage of RAG in quiz generation?</p>
+        <div class="opt"><span class="radio"></span>Faster training</div>
+        <div class="opt sel"><span class="radio"></span>Context-aware questions</div>
+        <div class="opt"><span class="radio"></span>More storage</div>
+        <div class="opt"><span class="radio"></span>Better graphics</div>
+      </div>
+
+      <svg class="bot" viewBox="0 0 100 100" fill="none" stroke="var(--ink)" stroke-width="2.5">
+        <circle cx="50" cy="55" r="30"/>
+        <path d="M35 50a15 8 0 0030 0" stroke-width="0" fill="var(--ink)"/>
+        <circle cx="40" cy="48" r="3" fill="var(--ink)"/>
+        <circle cx="60" cy="48" r="3" fill="var(--ink)"/>
+        <path d="M50 25v-8M35 20l4 6M65 20l-4 6"/>
+        <path d="M18 55h5M77 55h5"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== QUIZ STUDIO ===================== -->
+<section class="studio" id="studio">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow"><span class="eyebrow-dot"></span>Quiz Studio</div>
+      <h2>Turn Your PDF into a Quiz</h2>
+      <p>Upload your study material. It is processed in your browser, and only the most relevant sections are sent to the AI.</p>
+    </div>
+    <div class="studio-card">
+      <label class="drop" id="drop">
+        <input type="file" id="pdfInput" accept="application/pdf,.pdf" hidden>
+        <b id="dropTitle">Upload PDF</b>
+        <span id="dropSub">Click to choose or drag &amp; drop a PDF here (max 20 MB)</span>
+      </label>
+      <div class="studio-opts" id="opts" hidden>
+        <div class="field"><label for="topic">Focus topic (optional)</label><input type="text" id="topic" placeholder="e.g. Normalization, Unit 3" maxlength="120"></div>
+        <div class="name-row">
+          <div class="field"><label for="qCount">Questions</label><select id="qCount"><option>5</option><option>10</option><option>15</option></select></div>
+          <div class="field"><label for="qDiff">Difficulty</label><select id="qDiff"><option>easy</option><option selected>medium</option><option>hard</option></select></div>
+        </div>
+        <button class="submit-btn" id="genBtn">Generate Quiz</button>
+      </div>
+      <p class="form-msg" id="studioMsg"></p>
+      <div id="quiz"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FEATURES ===================== -->
+<section class="features" id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow"><span class="eyebrow-dot"></span>Key Features</div>
+      <h2>Everything You Need for Smarter Learning</h2>
+      <p>From secure access to AI-powered quiz generation, AuxQuiz brings together modern technology to make learning simpler and more effective.</p>
+    </div>
+    <div class="feat-grid">
+
+      <div class="feat-card">
+        <div class="feat-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg></div>
+        <h3>Secure Access</h3>
+        <p>Sign up and log in securely with Firebase authentication and Supabase RLS.</p>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4m0 0L7 9m5-5l5 5"/><path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3"/></svg></div>
+        <h3>Upload Study Material</h3>
+        <p>Upload PDFs, images and other learning files for AI-assisted processing.</p>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/></svg></div>
+        <h3>RAG-Based Generation</h3>
+        <p>Retrieve relevant content and generate context-aware quizzes using RAG.</p>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h9l3 3v13H6z"/><path d="M9 9h6M9 13h6M9 17h3"/></svg></div>
+        <h3>Store &amp; Manage</h3>
+        <p>Save quizzes and media securely with Supabase and Cloudinary.</p>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V9m6 10V5m6 14v-8"/></svg></div>
+        <h3>Track Progress</h3>
+        <p>Attempt quizzes and build your learning journey over time.</p>
+      </div>
+
+      <div class="feat-card">
+        <div class="feat-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l2.6 6.6L21 11l-6.4 2.4L12 20l-2.6-6.6L3 11l6.4-2.4z"/></svg></div>
+        <h3>Future Ready</h3>
+        <p>Built for personalization, analytics and even more AI assistance.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===================== HOW IT WORKS ===================== -->
+<section class="how" id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow"><span class="eyebrow-dot"></span>How It Works</div>
+      <h2>From Notes to Quiz in Minutes</h2>
+      <p>A simple, guided workflow takes your study material all the way to a ready-to-attempt quiz.</p>
+    </div>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num">1</div><h4>Sign In</h4><p>Authenticate securely with Firebase.</p></div>
+      <div class="flow-step"><div class="flow-num">2</div><h4>Upload</h4><p>Add PDFs, images or notes.</p></div>
+      <div class="flow-step"><div class="flow-num">3</div><h4>Process</h4><p>Content is cleaned and prepared.</p></div>
+      <div class="flow-step"><div class="flow-num">4</div><h4>Retrieve</h4><p>RAG finds the relevant context.</p></div>
+      <div class="flow-step"><div class="flow-num">5</div><h4>Generate</h4><p>AI builds your context-aware quiz.</p></div>
+      <div class="flow-step"><div class="flow-num">6</div><h4>Practice</h4><p>Attempt, review and track progress.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ABOUT ===================== -->
+<section class="about" id="about">
+  <div class="wrap about-grid">
+    <div>
+      <h2>Built as a Major Project at Bajaj Institute of Technology, Wardha</h2>
+      <p>AuxQuiz is developed by the Department of Computer Engineering as a Major Project (BTCOS708), guided by Dr. Gajanan Tikhe.</p>
+      <p>It combines Retrieval-Augmented Generation, secure authentication and cloud storage into a single platform that turns study material into interactive, context-aware quizzes — reducing the manual effort of creating assessments.</p>
+    </div>
+    <div class="stat-grid">
+      <div class="stat"><div class="num">RAG</div><div class="lbl">Context-aware generation</div></div>
+      <div class="stat"><div class="num">GPT-OSS 120B</div><div class="lbl">AI via Groq inference</div></div>
+      <div class="stat"><div class="num">Firebase</div><div class="lbl">Secure authentication</div></div>
+      <div class="stat"><div class="num">Supabase</div><div class="lbl">RLS-protected storage</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CTA ===================== -->
+<section class="cta-band">
+  <div class="wrap">
+    <h2>Ready to turn your notes into quizzes?</h2>
+    <p>Create a free account and generate your first context-aware quiz in minutes.</p>
+    <div class="cta-actions">
+      <button class="btn btn-solid btn-lg" id="ctaSignup">Create Free Account</button>
+      <button class="btn btn-outline btn-lg" id="ctaLogin">I already have an account</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer>
+  <div class="wrap">
+    <div class="foot-row">
+      <div class="brand">AuxQuiz</div>
+      <div class="foot-links">
+        <a href="#home">Home</a>
+        <a href="#features">Features</a>
+        <a href="#how">How It Works</a>
+        <a href="#about">About</a>
+      </div>
+    </div>
+    <p class="copyright">© 2026 AuxQuiz — Bajaj Institute of Technology, Wardha. Department of Computer Engineering.</p>
+  </div>
+</footer>
+
+<!-- ===================== AUTH MODAL ===================== -->
+<div class="overlay" id="authOverlay">
+  <div class="modal">
+    <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+    <h2 id="modalTitle">Welcome back</h2>
+    <p class="sub" id="modalSub">Log in to continue to AuxQuiz</p>
+
+    <div class="tabs">
+      <div class="tab active" id="tabLogin">Log In</div>
+      <div class="tab" id="tabSignup">Sign Up</div>
+    </div>
+
+    <!-- Google -->
+    <button class="google-btn" id="googleBtn">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.1 8 3l5.7-5.7C34.4 6.1 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.9 1.1 8 3l5.7-5.7C34.4 6.1 29.5 4 24 4c-7.6 0-14.2 4.3-17.7 10.7z"/><path fill="#4CAF50" d="M24 44c5.3 0 10.1-2 13.7-5.4l-6.3-5.3C29.3 34.9 26.8 36 24 36c-5.3 0-9.7-3.4-11.3-8.1l-6.5 5C9.7 39.6 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.7l6.3 5.3C40.9 36.6 44 30.9 44 24c0-1.3-.1-2.7-.4-3.5z"/></svg>
+      Continue with Google
+    </button>
+
+    <div class="divider">or</div>
+
+    <!-- Log in form -->
+    <form class="form-panel active" id="loginForm">
+      <div class="field">
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" placeholder="you@example.com" required>
+      </div>
+      <div class="field">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="submit-btn" id="loginSubmit">Log In</button>
+    </form>
+
+    <!-- Sign up form -->
+    <form class="form-panel" id="signupForm">
+      <div class="field">
+        <label for="signupName">Full name</label>
+        <input type="text" id="signupName" placeholder="Aman Padole" required>
+      </div>
+      <div class="field">
+        <label for="signupEmail">Email</label>
+        <input type="email" id="signupEmail" placeholder="you@example.com" required>
+      </div>
+      <div class="field">
+        <label for="signupPassword">Password</label>
+        <input type="password" id="signupPassword" placeholder="At least 6 characters" required minlength="6">
+      </div>
+      <button type="submit" class="submit-btn" id="signupSubmit">Create Account</button>
+    </form>
+
+    <p class="form-msg" id="formMsg"></p>
+
+    <p class="switch-line" id="switchLine">Don't have an account? <b id="switchToSignup">Sign up</b></p>
+  </div>
+</div>
+
+<!-- ===================== FIREBASE ===================== -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyB42w1PQlyopaSoyQv4xcH0wtjyrItM9XY",
+    authDomain: "auxquiz.firebaseapp.com",
+    projectId: "auxquiz",
+    storageBucket: "auxquiz.firebasestorage.app",
+    messagingSenderId: "731060377579",
+    appId: "1:731060377579:web:4f9ead797d8afa7e3c2bae",
+    measurementId: "G-JRCVEP4TEB"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+  /* ---------- DOM refs ---------- */
+  const overlay      = document.getElementById('authOverlay');
+  const modalClose    = document.getElementById('modalClose');
+  const modalTitle    = document.getElementById('modalTitle');
+  const modalSub      = document.getElementById('modalSub');
+  const tabLogin      = document.getElementById('tabLogin');
+  const tabSignup     = document.getElementById('tabSignup');
+  const loginForm     = document.getElementById('loginForm');
+  const signupForm    = document.getElementById('signupForm');
+  const formMsg       = document.getElementById('formMsg');
+  const switchLine    = document.getElementById('switchLine');
+  const switchToSignup= document.getElementById('switchToSignup');
+  const googleBtn     = document.getElementById('googleBtn');
+
+  const loginBtn  = document.getElementById('loginBtn');
+  const signupBtn = document.getElementById('signupBtn');
+  const getStartedBtn = document.getElementById('getStartedBtn');
+  const ctaSignup = document.getElementById('ctaSignup');
+  const ctaLogin  = document.getElementById('ctaLogin');
+
+  const userChip   = document.getElementById('userChip');
+  const userAvatar = document.getElementById('userAvatar');
+  const userName   = document.getElementById('userName');
+  const logoutBtn  = document.getElementById('logoutBtn');
+
+  const menuToggle = document.getElementById('menuToggle');
+  const navLinks   = document.getElementById('navLinks');
+
+  menuToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
+  navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navLinks.classList.remove('open')));
+
+  /* ---------- Modal open/close ---------- */
+  function openModal(mode){
+    overlay.classList.add('show');
+    setMode(mode);
+    clearMsg();
+  }
+  function closeModal(){
+    overlay.classList.remove('show');
+  }
+  function setMode(mode){
+    if(mode === 'signup'){
+      tabSignup.classList.add('active');
+      tabLogin.classList.remove('active');
+      signupForm.classList.add('active');
+      loginForm.classList.remove('active');
+      modalTitle.textContent = 'Create your account';
+      modalSub.textContent = 'Start turning notes into quizzes';
+      switchLine.innerHTML = 'Already have an account? <b id="switchToLogin">Log in</b>';
+      document.getElementById('switchToLogin').addEventListener('click', () => setMode('login'));
+    } else {
+      tabLogin.classList.add('active');
+      tabSignup.classList.remove('active');
+      loginForm.classList.add('active');
+      signupForm.classList.remove('active');
+      modalTitle.textContent = 'Welcome back';
+      modalSub.textContent = 'Log in to continue to AuxQuiz';
+      switchLine.innerHTML = "Don't have an account? <b id=\"switchToSignup2\">Sign up</b>";
+      document.getElementById('switchToSignup2').addEventListener('click', () => setMode('signup'));
+    }
+    clearMsg();
+  }
+  function clearMsg(){ formMsg.textContent=''; formMsg.className='form-msg'; }
+  function showMsg(text, ok){ formMsg.textContent = text; formMsg.className = 'form-msg ' + (ok ? 'ok' : 'err'); }
+
+  loginBtn.addEventListener('click', () => openModal('login'));
+  signupBtn.addEventListener('click', () => openModal('signup'));
+  getStartedBtn.addEventListener('click', () => { window.wantStudio = true; auth.currentUser ? openStudio() : openModal('signup'); });
+  ctaSignup.addEventListener('click', () => openModal('signup'));
+  ctaLogin.addEventListener('click', () => openModal('login'));
+  modalClose.addEventListener('click', closeModal);
+  overlay.addEventListener('click', (e) => { if(e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeModal(); });
+
+  tabLogin.addEventListener('click', () => setMode('login'));
+  tabSignup.addEventListener('click', () => setMode('signup'));
+  switchToSignup.addEventListener('click', () => setMode('signup'));
+
+  /* ---------- Friendly Firebase error messages ---------- */
+  function friendlyError(err){
+    const map = {
+      'auth/email-already-in-use': 'An account already exists with this email. Try logging in instead.',
+      'auth/invalid-email': 'That email address looks invalid.',
+      'auth/weak-password': 'Password should be at least 6 characters.',
+      'auth/user-not-found': 'No account found with this email.',
+      'auth/wrong-password': 'Incorrect password. Please try again.',
+      'auth/invalid-credential': 'Incorrect email or password.',
+      'auth/popup-closed-by-user': 'Google sign-in was cancelled.',
+      'auth/too-many-requests': 'Too many attempts. Please wait a moment and try again.'
+    };
+    return map[err.code] || err.message || 'Something went wrong. Please try again.';
+  }
+
+  /* ---------- Email/password sign up ---------- */
+  signupForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('signupName').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    const btn = document.getElementById('signupSubmit');
+    btn.disabled = true; btn.textContent = 'Creating account...';
+    try{
+      const cred = await auth.createUserWithEmailAndPassword(email, password);
+      if(name){ await cred.user.updateProfile({ displayName: name }); }
+      showMsg('Account created! Redirecting...', true);
+      setTimeout(closeModal, 900);
+    } catch(err){
+      showMsg(friendlyError(err), false);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Create Account';
+    }
+  });
+
+  /* ---------- Email/password login ---------- */
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const btn = document.getElementById('loginSubmit');
+    btn.disabled = true; btn.textContent = 'Logging in...';
+    try{
+      await auth.signInWithEmailAndPassword(email, password);
+      showMsg('Logged in successfully!', true);
+      setTimeout(closeModal, 700);
+    } catch(err){
+      showMsg(friendlyError(err), false);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Log In';
+    }
+  });
+
+  /* ---------- Google sign in ---------- */
+  googleBtn.addEventListener('click', async () => {
+    clearMsg();
+    googleBtn.disabled = true;
+    try{
+      await auth.signInWithPopup(googleProvider);
+      showMsg('Signed in with Google!', true);
+      setTimeout(closeModal, 700);
+    } catch(err){
+      showMsg(friendlyError(err), false);
+    } finally {
+      googleBtn.disabled = false;
+    }
+  });
+
+  /* ---------- Logout ---------- */
+  logoutBtn.addEventListener('click', async () => {
+    await auth.signOut();
+  });
+
+  /* ---------- AI: quiz generation (calls /api/quiz) ---------- */
+  async function generateQuiz(text, { count = 5, difficulty = 'medium' } = {}){
+    if(!auth.currentUser) throw new Error('Please log in first.');
+    const res = await fetch('/api/quiz', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + await auth.currentUser.getIdToken() },
+      body: JSON.stringify({ text, count, difficulty })
+    });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.error || 'Quiz generation failed');
+    return data.questions;
+  }
+  window.generateQuiz = generateQuiz;
+
+  /* ---------- Auth state ---------- */
+  auth.onAuthStateChanged((user) => {
+    if(user){
+      loginBtn.style.display = 'none';
+      signupBtn.style.display = 'none';
+      userChip.style.display = 'flex';
+      userName.textContent = user.displayName || user.email || 'Account';
+      userAvatar.src = user.photoURL || ('https://ui-avatars.com/api/?background=0a0a0a&color=fff&name=' + encodeURIComponent(user.displayName || user.email || 'U'));
+    } else {
+      loginBtn.style.display = 'inline-flex';
+      signupBtn.style.display = 'inline-flex';
+      userChip.style.display = 'none';
+    }
+  });
+</script>
+<script>
+/* ---------- Quiz Studio: PDF -> client-side chunking + BM25 retrieval -> /api/quiz ---------- */
+(() => {
+  const $ = id => document.getElementById(id);
+  const el = (t, c, x) => { const e = document.createElement(t); e.className = c; if (x) e.textContent = x; return e; };
+  const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+  let chunks = [], score = null;
+
+  /*PURE*/
+  const tok = s => s.toLowerCase().match(/[\p{L}\p{N}]{2,}/gu) || [];
+  const chunk = (t, size = 700) => {
+    const out = []; let cur = '';
+    for (const s of t.match(/[^.!?]+[.!?]*\s*/g) || [t]) {
+      if (cur && cur.length + s.length > size) { out.push(cur.trim()); cur = cur.slice(-100); }
+      cur += s;
+    }
+    if (cur.trim()) out.push(cur.trim());
+    return out;
+  };
+  const bm25 = cs => {
+    const docs = cs.map(c => { const w = tok(c), tf = {}; w.forEach(x => tf[x] = (tf[x] || 0) + 1); return { tf, len: w.length || 1 }; });
+    const df = {}; docs.forEach(d => Object.keys(d.tf).forEach(w => df[w] = (df[w] || 0) + 1));
+    const avg = docs.reduce((a, d) => a + d.len, 0) / docs.length;
+    return q => { const qs = [...new Set(tok(q))]; return docs.map(d => qs.reduce((s, w) => {
+      const f = d.tf[w]; if (!f) return s;
+      return s + Math.log(1 + (docs.length - df[w] + .5) / (df[w] + .5)) * f * 2.2 / (f + 1.2 * (.25 + .75 * d.len / avg));
+    }, 0)); };
+  };
+  const pick = (k, topic) => {
+    const n = Math.min(k, chunks.length), sc = topic.trim() ? score(topic) : null;
+    const ids = sc && Math.max(...sc) > 0
+      ? sc.map((s, i) => [s, i]).sort((a, b) => b[0] - a[0]).slice(0, n).map(x => x[1])
+      : Array.from({ length: n }, (_, i) => Math.floor(i * chunks.length / n));
+    return ids.sort((a, b) => a - b).map(i => chunks[i].slice(0, 1200)).join('\n\n');
+  };
+  /*END*/
+
+  const studio = $('studio'), drop = $('drop'), opts = $('opts'), genBtn = $('genBtn'), quizEl = $('quiz'), sMsg = $('studioMsg');
+  const msg = (t, type = '') => { sMsg.textContent = t; sMsg.className = 'form-msg ' + type; };
+
+  window.openStudio = () => { studio.classList.add('show'); studio.scrollIntoView({ behavior: 'smooth' }); };
+
+  const loadPdfJs = () => window.pdfjsLib ? Promise.resolve() : new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = PDFJS + 'pdf.min.js';
+    s.onload = () => { pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + 'pdf.worker.min.js'; res(); };
+    s.onerror = () => rej(new Error('Could not load the PDF reader. Check your connection.'));
+    document.head.appendChild(s);
+  });
+
+  async function readPdf(file) {
+    await loadPdfJs();
+    const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+    const n = Math.min(pdf.numPages, 300); let t = '';
+    for (let i = 1; i <= n; i++) {
+      msg(`Reading page ${i}/${n}…`);
+      t += (await (await pdf.getPage(i)).getTextContent()).items.map(x => x.str).join(' ') + '\n';
+    }
+    return t.replace(/\s+/g, ' ').trim();
+  }
+
+  async function handleFile(f) {
+    if (!f) return;
+    if (!/pdf/i.test(f.type + f.name)) return msg('Please choose a PDF file.', 'err');
+    if (f.size > 20 * 1048576) return msg('PDF is too large (max 20 MB).', 'err');
+    opts.hidden = true; quizEl.replaceChildren(); chunks = [];
+    try {
+      const t = await readPdf(f);
+      if (t.length < 200) throw new Error('No selectable text found. Scanned/image PDFs are not supported yet.');
+      chunks = chunk(t); score = bm25(chunks);
+      $('dropTitle').textContent = f.name;
+      $('dropSub').textContent = `${chunks.length} sections indexed · click to replace`;
+      msg(''); opts.hidden = false;
+    } catch (e) { msg(e.message || 'Could not read this PDF.', 'err'); }
+  }
+
+  const valid = q => q && q.q && Array.isArray(q.options) && q.options.length === 4 && q.answer >= 0 && q.answer < 4;
+
+  function render(qs) {
+    quizEl.replaceChildren();
+    let done = 0, right = 0;
+    const sum = el('div', 'qz-sum'); sum.hidden = true;
+    qs.forEach((q, i) => {
+      const card = el('div', 'qz-card'), ex = el('div', 'qz-ex', q.explanation || ''); ex.hidden = true;
+      card.append(el('div', 'qz-q', `${i + 1}. ${q.q}`));
+      q.options.forEach((o, j) => {
+        const b = el('button', 'qz-opt', o);
+        b.onclick = () => {
+          card.querySelectorAll('.qz-opt').forEach((x, k) => { x.disabled = true; if (k === q.answer) x.classList.add('ok'); });
+          j === q.answer ? right++ : b.classList.add('bad');
+          ex.hidden = false;
+          if (++done === qs.length) { sum.textContent = `Score: ${right} / ${qs.length}`; sum.hidden = false; }
+        };
+        card.append(b);
+      });
+      card.append(ex); quizEl.append(card);
+    });
+    quizEl.append(sum);
+  }
+
+  genBtn.onclick = async () => {
+    genBtn.disabled = true; genBtn.textContent = 'Generating…';
+    msg('Retrieving relevant content and generating your quiz…');
+    try {
+      const n = +$('qCount').value, topic = $('topic').value.trim();
+      const ctx = (topic ? `Focus topic: ${topic}\n\n` : '') + pick(Math.min(12, Math.max(6, n)), topic);
+      const qs = (await generateQuiz(ctx, { count: n, difficulty: $('qDiff').value })).filter(valid);
+      if (!qs.length) throw new Error('No valid questions returned. Please try again.');
+      render(qs); msg('');
+      quizEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (e) { msg(e.message || 'Something went wrong.', 'err'); }
+    finally { genBtn.disabled = false; genBtn.textContent = 'Generate Quiz'; }
+  };
+
+  $('pdfInput').onchange = e => { const f = e.target.files[0]; e.target.value = ''; handleFile(f); };
+  ['dragover', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); if (ev === 'drop') handleFile(e.dataTransfer.files[0]); }));
+
+  auth.onAuthStateChanged(u => {
+    if (!u) studio.classList.remove('show');
+    else if (window.wantStudio) { window.wantStudio = false; openStudio(); }
+  });
+})();
+</script>
+</body>
+</html>
